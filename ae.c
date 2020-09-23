@@ -3,7 +3,7 @@
 #include<stdio.h>
 #include <stdlib.h>
 #include<math.h>
- 
+//#arbitrary changes 
 //Set physical parameters
 #define H0 70.0
 #define Theta_k 0.0
