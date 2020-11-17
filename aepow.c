@@ -11,7 +11,8 @@
 //#define alpha 0.2//1.0
 #define kappa 1.0
 #define n 1.0
-#define gamma_top -0.1*5.0*H0*H0
+//#define gamma_top -0.1*5.0*H0*H0
+#define gamma_top 0.0
 #define Theta_Lambda_top 0.7*H0*H0
 
 //Set initial conditions
