@@ -184,7 +184,7 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 			//deviation=epsilon(X,Y,Xdot,Ydot, Theta_m, Theta_Lambda, alpha, gamma);
 			dL=zeta/X;
 			mu_th=52.38560626+ 5*log10(dL); //Hub=25+5*log10(speed of light in km/s)
-			printf("%.10f %.10f %.10f %.10f %.10f %d \n",X,tau*H0, deviation, mu_th, 1./X-1.,i);
+			//printf("%.10f %.10f %.10f %.10f %.10f %d \n",X,tau*H0, deviation, mu_th, 1./X-1.,i);
                 }
 		
 	}	
