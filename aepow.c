@@ -218,9 +218,32 @@ int main()
 	*/  
 
 	//z=200.0; //Given a z, calculate mu
-	z=200.0;
-	mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
+	FILE *fp;
+	int i=0,j=0;
+	double arr_z[sizeofz];
+	double arr_mu_th[sizeofz];
+	fp=fopen("C:\\Users\\anwen\\Downloads\\SCPUnion2_1_z.txt","r");
 
+	while(fp!=NULL)
+    {
+        fscanf(fp,"%lf",&arr_z[i]);
+        z=arr_z[i];
+        mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
+        arr_mu_th[j]=mu;
+
+        printf("%lf      ",arr_z[i]);
+        printf("%lf\n",arr_mu_th[j]);
+
+        if((arr_z[i]<=0))
+        {
+            printf("error number\n");
+            break;
+        }
+        i++;
+        j++;
+    }
+    fclose(fp);
+	
 	//printf("%.10f %.10f \n",z,mu);
 
 	return 0;
