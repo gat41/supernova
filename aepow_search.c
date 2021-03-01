@@ -225,12 +225,6 @@ int main()
 	double arr_mu_th[sizeofz];
 	double arr_mu_obs[sizeofz];
 	double arr_sigma[sizeofz];
-	double x[sizeofz];
-	double k_square[sizeofz];
-
-	clock_t start,finish;
-	int sum=0;
-	double time;
 
 	//for GT's directory:
 	fp=fopen("./data/SCPUnion2_1_z","r");
@@ -253,17 +247,18 @@ int main()
 	//Mu_obs=fopen("C:\\Users\\anwen\\Downloads\\mu_obs.txt","r");
 	//Sigma=fopen("C:\\Users\\anwen\\Downloads\\sigma.txt","r");
 
-
+	double k_square_arr[21];
+	
+	clock_t start,finish;
+	double time;
+	start=clock();
 
 	for(int j=0;j<21;j++)
 	{
-		printf("j is %d:\n", j);
+		printf("gammasub:%lf\n\n",gammasub);
 
-		// printf("\nGammasub=%lf ,the value of k_square is:\n",gammasub);
+		double k_square = 0;
 
-		//start=clock();
-
-		/*
 		while(fp!=NULL)
 		{
 			fscanf(fp,"%lf",&arr_z[i]);
@@ -276,15 +271,15 @@ int main()
 			mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
 			arr_mu_th[i]=mu;
 
-			x[i]=(arr_mu_obs[i]-arr_mu_th[i])/arr_sigma[i];
-			k_square[i]=pow(x[i],2);
-
-			printf("%lf \n",k_square[i]);
-
+			k_square+=pow((arr_mu_obs[i]-arr_mu_th[i])/arr_sigma[i],2);
+			
 			i++;
-		}*/
+		}
 
-		//gammasub+=0.1;
+		printf("%lf \n",k_square);
+		k_square_arr[j] = k_square;
+ 
+		gammasub+=0.1;
 
 	} 
 
@@ -294,7 +289,7 @@ int main()
 
 	finish=clock();
 	time=(double)(finish-start);
-	printf("\n\nThe grid search took:%f s",time/1000);
+	printf("\n\nThe grid search took %f s",time/1000);
 	printf("\n\n");
 
 	return 0;
