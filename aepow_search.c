@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
+#include<time.h>
 
 //Set physical parameters
 #define H0 70.0
@@ -31,6 +32,9 @@
 #define zeta_init 0.0
 #define zeta_final 100000000*1.570796327
 
+#define sizeofz 580
+
+
 
 double Xddot(double X, double Y, double Xdot, double Ydot, double Theta_m, double Theta_Lambda, double alpha, double gamma)
 {
@@ -44,7 +48,7 @@ double Xddot(double X, double Y, double Xdot, double Ydot, double Theta_m, doubl
 }
 
 double Yddot(double X, double Y, double Xdot, double Ydot, double Theta_m, double Theta_Lambda, double alpha, double gamma)
-{	
+{
 	return 1.0;
 }
 
@@ -156,14 +160,14 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		//Break conditions
 		if(X>X_infty || X<X_max || i>max_iter || isnan(X))
 		{
-			printf("pop \n");
+			printf(" Error: value is too large \n");
 			break;
 		}
 
 		deviation=epsilon(X,Y,Xdot,Ydot, Theta_m, Theta_Lambda, alpha, gamma);
 		if(fabs(deviation)>EPS)
 		{
-			printf("fuck \n");
+			printf("Error: fabs(deviation)>EPS  \n");
 			break;
 		}
 		/*
@@ -177,7 +181,7 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		}
 		*/
 
-                
+
                 tau_check=(tau/h)/filter;
                 if(floor(tau_check)==tau_check)
                 {
@@ -186,64 +190,99 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 			mu_th=52.38560626+ 5*log10(dL); //Hub=25+5*log10(speed of light in km/s)
 			//printf("%.10f %.10f %.10f %.10f %.10f %d \n",X,tau*H0, deviation, mu_th, 1./X-1.,i);
                 }
-		
-	}	
-	
+
+	}
+
 	dL=zeta/X;
         mu_th=52.38560626 + 5*log10(dL); //Hub=52.38560626=25+5*log10(speed of light in km/s)
 	return mu_th;
 }
+
 
 int main()
 {
 	double Theta_msub, Theta_Lambdasub, alphasub, gammasub, dL, mu, z, q;
 
 	double T1, T2;
-	
-	//Parameter setup
-	Theta_Lambdasub=Theta_Lambda_top; //0.5*H0*H0;
-	alphasub=1.0;
-	gammasub=gamma_top; //-10*0.65*H0*H0;
-	Theta_msub=Theta_msolve(1.0, 1.0, H0, 1.0, Theta_Lambdasub, alphasub, gammasub);
-	
-	
 
+	//Parameter setup
+	alphasub=1.0;
+	
+	//Parameters to be optimized
+	Theta_Lambdasub=0; //0.5*H0*H0;
+	gammasub=-1.0; //-10*0.65*H0*H0;  
 
 	/* //diagnostics for deceleration parameter
 	T1=(1-2*n)*(3-2*n)*gammasub*pow(3*alphasub,n)*pow(H0,2*n)/6;
 	T2=2+n*(1-2*n)/3*gammasub*pow(3*alphasub,n)*pow(H0,2*(n-1));
 	q=-Xddot(X_init, Y_init, Xdot_init, Ydot_init,Theta_msub,Theta_Lambdasub,alphasub,gammasub)/H0/H0;
 	printf("%f %f %f %f \n" ,q, T1, T2, Theta_msub);
-	*/  
+	*/
 
-	//z=200.0; //Given a z, calculate mu
-	FILE *fp;
-	int i=0,j=0;
+	FILE *fp,*Mu_obs,*Sigma;
+	int i=0;
 	double arr_z[sizeofz];
 	double arr_mu_th[sizeofz];
-	fp=fopen("C:\\Users\\anwen\\Downloads\\SCPUnion2_1_z.txt","r");
+	double arr_mu_obs[sizeofz];
+	double arr_sigma[sizeofz];
+	double x[sizeofz];
+	double k_square[sizeofz];
 
-	while(fp!=NULL)
-    {
-        fscanf(fp,"%lf",&arr_z[i]);
-        z=arr_z[i];
-        mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
-        arr_mu_th[j]=mu;
+	clock_t start,finish;
+	int sum=0;
+	double time;
 
-        printf("%lf      ",arr_z[i]);
-        printf("%lf\n",arr_mu_th[j]);
+	//fp=fopen("C:\\data\\SCPUnion2_1_z.txt","r");
+	//Mu_obs=fopen("C:\\data\\SCPUnion2_1_mu.txt","r");
+	//Sigma=fopen("C:\\data\\SCPUnion2_1_sigma.txt","r");
 
-        if((arr_z[i]<=0))
-        {
-            printf("error number\n");
-            break;
-        }
-        i++;
-        j++;
-    }
-    fclose(fp);
-	
-	//printf("%.10f %.10f \n",z,mu);
+	//fp=fopen("C:\\Users\\anwen\\Downloads\\SCPUnion2_1_z.txt","r");
+	//Mu_obs=fopen("C:\\Users\\anwen\\Downloads\\mu_obs.txt","r");
+	//Sigma=fopen("C:\\Users\\anwen\\Downloads\\sigma.txt","r");
+
+
+
+	for(int j=0;j<21;j++)
+	{
+		printf("j is %d:\n", j);
+
+		// printf("\nGammasub=%lf ,the value of k_square is:\n",gammasub);
+
+		//start=clock();
+
+		/*
+		while(fp!=NULL)
+		{
+			fscanf(fp,"%lf",&arr_z[i]);
+			fscanf(Mu_obs,"%lf",&arr_mu_obs[i]);
+			fscanf(Sigma,"%lf",&arr_sigma[i]);
+
+			z=arr_z[i];
+
+			Theta_msub=Theta_msolve(1.0, 1.0, H0, 1.0, Theta_Lambdasub, alphasub, gammasub);
+			mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
+			arr_mu_th[i]=mu;
+
+			x[i]=(arr_mu_obs[i]-arr_mu_th[i])/arr_sigma[i];
+			k_square[i]=pow(x[i],2);
+
+			printf("%lf \n",k_square[i]);
+
+			i++;
+		}*/
+
+		//gammasub+=0.1;
+
+	} 
+
+	//fclose(fp);
+	//fclose(Mu_obs);
+	//fclose(Sigma);
+
+	finish=clock();
+	time=(double)(finish-start);
+	printf("\n\nThe grid search took:%f s",time/1000);
+	printf("\n\n");
 
 	return 0;
 }
