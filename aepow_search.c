@@ -160,6 +160,7 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		//Break conditions
 		if(X>X_infty || X<X_max || i>max_iter || isnan(X))
 		{
+			mu_th = -1;
 			printf("Error: value is too large \n");
 			break;
 		}
@@ -167,6 +168,7 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		deviation=epsilon(X,Y,Xdot,Ydot, Theta_m, Theta_Lambda, alpha, gamma);
 		if(fabs(deviation)>EPS)
 		{
+			mu_th = -2;
 			printf("Error: fabs(deviation)>EPS  \n");
 			break;
 		}
@@ -181,20 +183,18 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		}
 		*/
 
-
-                tau_check=(tau/h)/filter;
-                if(floor(tau_check)==tau_check)
-                {
+		tau_check=(tau/h)/filter;
+		if(floor(tau_check)==tau_check)
+		{
 			//deviation=epsilon(X,Y,Xdot,Ydot, Theta_m, Theta_Lambda, alpha, gamma);
 			dL=zeta/X;
 			mu_th=52.38560626+ 5*log10(dL); //Hub=25+5*log10(speed of light in km/s)
 			//printf("%.10f %.10f %.10f %.10f %.10f %d \n",X,tau*H0, deviation, mu_th, 1./X-1.,i);
-                }
-
+		}
 	}
 
 	dL=zeta/X;
-        mu_th=52.38560626 + 5*log10(dL); //Hub=52.38560626=25+5*log10(speed of light in km/s)
+	mu_th=52.38560626 + 5*log10(dL); //Hub=52.38560626=25+5*log10(speed of light in km/s)
 	return mu_th;
 }
 
@@ -268,11 +268,10 @@ int main()
 			z=arr_z[i];
 
 			Theta_msub=Theta_msolve(1.0, 1.0, H0, 1.0, Theta_Lambdasub, alphasub, gammasub);
-
-			//1. We need to add a condition here whereby if the "pop" happens, then k_square = -1 and we move on to the next gammasub; else we continue the computations.
-			// This means that we may need to add some error handling code in line 164 so that we can capture that error
-			// pseudocode:
-			// if (mu = dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z)) returns error, k_square = -1, get out of this while loop)
+			mu = dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
+			printf("mu_th:%lf\n\n", mu);
+			
+			//if () returns error, k_square = -1, get out of this while loop)
 			// else
 			//	{arr_mu_th[i]=mu;
 			//	 k_square+=pow((arr_mu_obs[i]-arr_mu_th[i])/arr_sigma[i],2);
