@@ -156,14 +156,14 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		//Break conditions
 		if(X>X_infty || X<X_max || i>max_iter || isnan(X))
 		{
-			printf("pop \n");
+			printf("Error: value is too large \n");
 			break;
 		}
 
 		deviation=epsilon(X,Y,Xdot,Ydot, Theta_m, Theta_Lambda, alpha, gamma);
 		if(fabs(deviation)>EPS)
 		{
-			printf("fuck \n");
+			printf("Error: fabs(deviation)>EPS \n");
 			break;
 		}
 		/*

@@ -160,7 +160,7 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		//Break conditions
 		if(X>X_infty || X<X_max || i>max_iter || isnan(X))
 		{
-			printf(" Error: value is too large \n");
+			printf("Error: value is too large \n");
 			break;
 		}
 
@@ -232,10 +232,23 @@ int main()
 	int sum=0;
 	double time;
 
-	//fp=fopen("C:\\data\\SCPUnion2_1_z.txt","r");
-	//Mu_obs=fopen("C:\\data\\SCPUnion2_1_mu.txt","r");
-	//Sigma=fopen("C:\\data\\SCPUnion2_1_sigma.txt","r");
+	//for GT's directory:
+	fp=fopen("./data/SCPUnion2_1_z","r");
+	if (fp != NULL)
+		printf("File SCPUnion2_1_z can be read. \n");
+	else perror("fopen");
 
+	Mu_obs=fopen("./data/SCPUnion2_1_mu","r");
+	if (Mu_obs != NULL)
+		printf("File SCPUnion2_1_mu can be read. \n");
+	else perror("fopen");
+	
+	Sigma=fopen("./data/SCPUnion2_1_sigma","r");
+	if (Sigma != NULL)
+		printf("File SCPUnion2_1_sigma can be read. \n");
+	else perror("fopen");
+
+	//for Wenqi's directory:
 	//fp=fopen("C:\\Users\\anwen\\Downloads\\SCPUnion2_1_z.txt","r");
 	//Mu_obs=fopen("C:\\Users\\anwen\\Downloads\\mu_obs.txt","r");
 	//Sigma=fopen("C:\\Users\\anwen\\Downloads\\sigma.txt","r");
@@ -275,9 +288,9 @@ int main()
 
 	} 
 
-	//fclose(fp);
-	//fclose(Mu_obs);
-	//fclose(Sigma);
+	fclose(fp);
+	fclose(Mu_obs);
+	fclose(Sigma);
 
 	finish=clock();
 	time=(double)(finish-start);
