@@ -268,11 +268,15 @@ int main()
 			z=arr_z[i];
 
 			Theta_msub=Theta_msolve(1.0, 1.0, H0, 1.0, Theta_Lambdasub, alphasub, gammasub);
-			mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
-			arr_mu_th[i]=mu;
 
-			k_square+=pow((arr_mu_obs[i]-arr_mu_th[i])/arr_sigma[i],2);
-			
+			//1. We need to add a condition here whereby if the "pop" happens, then k_square = -1 and we move on to the next gammasub; else we continue the computations.
+			// This means that we may need to add some error handling code in line 164 so that we can capture that error
+			// pseudocode:
+			// if (mu = dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z)) returns error, k_square = -1, get out of this while loop)
+			// else
+			//	{arr_mu_th[i]=mu;
+			//	 k_square+=pow((arr_mu_obs[i]-arr_mu_th[i])/arr_sigma[i],2);
+			//	}
 			i++;
 		}
 
@@ -282,6 +286,8 @@ int main()
 		gammasub+=0.1;
 
 	} 
+	
+	//2. is there a way to output k_square_arr to a text file?
 
 	fclose(fp);
 	fclose(Mu_obs);
