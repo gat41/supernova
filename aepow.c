@@ -216,7 +216,7 @@ int main()
 	printf("%f %f %f %f \n" ,q, T1, T2, Theta_msub);
 	*/
 
-	z=200.0; //Given a z, calculate mu
+	z=0.02; //Given a z, calculate mu
 	mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
     printf("%lf\n", mu);
 	
