@@ -31,6 +31,8 @@
 #define zeta_init 0.0
 #define zeta_final 100000000*1.570796327
 
+#define sizeofz 580
+
 
 double Xddot(double X, double Y, double Xdot, double Ydot, double Theta_m, double Theta_Lambda, double alpha, double gamma)
 {
@@ -205,9 +207,6 @@ int main()
 	alphasub=1.0;
 	gammasub=gamma_top; //-10*0.65*H0*H0;
 	Theta_msub=Theta_msolve(1.0, 1.0, H0, 1.0, Theta_Lambdasub, alphasub, gammasub);
-	
-	
-
 
 	/* //diagnostics for deceleration parameter
 	T1=(1-2*n)*(3-2*n)*gammasub*pow(3*alphasub,n)*pow(H0,2*n)/6;
@@ -217,13 +216,22 @@ int main()
 	printf("%f %f %f %f \n" ,q, T1, T2, Theta_msub);
 	*/  
 
-	//z=200.0; //Given a z, calculate mu
+	z=200.0; //Given a z, calculate mu
+	mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
+    printf("%lf\n", mu);
+	
+	/*
 	FILE *fp;
 	int i=0,j=0;
 	double arr_z[sizeofz];
 	double arr_mu_th[sizeofz];
-	fp=fopen("C:\\Users\\anwen\\Downloads\\SCPUnion2_1_z.txt","r");
-
+	//fp=fopen("C:\\Users\\anwen\\Downloads\\SCPUnion2_1_z.txt","r");
+	
+	fp=fopen("./data/SCPUnion2_1_z","r");
+	if (fp != NULL)
+		printf("File SCPUnion2_1_z is read. \n");
+	else perror("fopen");
+	
 	while(fp!=NULL)
     {
         fscanf(fp,"%lf",&arr_z[i]);
@@ -243,6 +251,7 @@ int main()
         j++;
     }
     fclose(fp);
+	*/
 	
 	//printf("%.10f %.10f \n",z,mu);
 
