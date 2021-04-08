@@ -46,7 +46,7 @@ double Xddot(double X, double Y, double Xdot, double Ydot, double Theta_m, doubl
 }
 
 double Yddot(double X, double Y, double Xdot, double Ydot, double Theta_m, double Theta_Lambda, double alpha, double gamma)
-{	
+{
 	return 1.0;
 }
 
@@ -158,14 +158,14 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		//Break conditions
 		if(X>X_infty || X<X_max || i>max_iter || isnan(X))
 		{
-			printf("pop \n");
+			printf("Error: value is too large \n");
 			break;
 		}
 
 		deviation=epsilon(X,Y,Xdot,Ydot, Theta_m, Theta_Lambda, alpha, gamma);
 		if(fabs(deviation)>EPS)
 		{
-			printf("fuck \n");
+			printf("Error: fabs(deviation)>EPS \n");
 			break;
 		}
 		/*
@@ -179,7 +179,7 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		}
 		*/
 
-                
+
                 tau_check=(tau/h)/filter;
                 if(floor(tau_check)==tau_check)
                 {
@@ -188,9 +188,9 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 			mu_th=52.38560626+ 5*log10(dL); //Hub=25+5*log10(speed of light in km/s)
 			//printf("%.10f %.10f %.10f %.10f %.10f %d \n",X,tau*H0, deviation, mu_th, 1./X-1.,i);
                 }
-		
-	}	
-	
+
+	}
+
 	dL=zeta/X;
         mu_th=52.38560626 + 5*log10(dL); //Hub=52.38560626=25+5*log10(speed of light in km/s)
 	return mu_th;
@@ -201,7 +201,7 @@ int main()
 	double Theta_msub, Theta_Lambdasub, alphasub, gammasub, dL, mu, z, q;
 
 	double T1, T2;
-	
+
 	//Parameter setup
 	Theta_Lambdasub=Theta_Lambda_top; //0.5*H0*H0;
 	alphasub=1.0;
@@ -214,7 +214,7 @@ int main()
 
 	q=-Xddot(X_init, Y_init, Xdot_init, Ydot_init,Theta_msub,Theta_Lambdasub,alphasub,gammasub)/H0/H0;
 	printf("%f %f %f %f \n" ,q, T1, T2, Theta_msub);
-	*/  
+	*/
 
 	z=200.0; //Given a z, calculate mu
 	mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
@@ -252,7 +252,7 @@ int main()
     }
     fclose(fp);
 	*/
-	
+
 	//printf("%.10f %.10f \n",z,mu);
 
 	return 0;
