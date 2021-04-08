@@ -155,12 +155,18 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		tau=i*h;
 
 		//Break conditions
-		if(X>X_infty || X<X_max || i>max_iter || isnan(X))
+		if(X>X_infty || i>max_iter || isnan(X))
 		{
 			printf("Error: value is too large \n");
 			break;
 		}
 
+		if(X<X_max)
+		{
+			//printf("X < X_max \n");
+			break;
+		}
+		
 		deviation=epsilon(X,Y,Xdot,Ydot, Theta_m, Theta_Lambda, alpha, gamma);
 		if(fabs(deviation)>EPS)
 		{
@@ -215,11 +221,10 @@ int main()
 	printf("%f %f %f %f \n" ,q, T1, T2, Theta_msub);
 	*/
 
-	z=0.02; //Given a z, calculate mu
-	mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
-	printf("%lf\n", mu);
+	//z=0.02; //Given a z, calculate mu
+	//mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
+	//printf("%lf\n", mu);
 
-	/*
 	FILE *fp;
 	int i=0,j=0;
 	double arr_z[sizeofz];
@@ -250,7 +255,7 @@ int main()
         j++;
     }
     fclose(fp);
-	*/
+	
 	//printf("%.10f %.10f \n",z,mu);
 
 	return 0;
