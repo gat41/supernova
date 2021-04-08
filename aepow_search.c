@@ -222,16 +222,19 @@ int main()
 	printf("%f %f %f %f \n" ,q, T1, T2, Theta_msub);
 	*/
 
-	FILE *fp,*Mu_obs,*Sigma;
+	FILE *Zval, *Mu_obs, *Sigma, *fw;
 	int i=0;
 	double arr_z[sizeofz];
 	double arr_mu_th[sizeofz];
 	double arr_mu_obs[sizeofz];
 	double arr_sigma[sizeofz];
+	
+	// write the mu values to this fie
+	fw = fopen ("chisq_values.txt","w");
 
-	//for GT's directory:
-	fp=fopen("./data/SCPUnion2_1_z","r");
-	if (fp != NULL)
+	//read in the SCP Union data
+	Zval=fopen("./data/SCPUnion2_1_z","r");
+	if (Zval != NULL)
 		printf("File SCPUnion2_1_z can be read. \n");
 	else perror("fopen");
 
@@ -246,11 +249,11 @@ int main()
 	else perror("fopen");
 
 	//for Wenqi's directory:
-	//fp=fopen("C:\\Users\\anwen\\Downloads\\SCPUnion2_1_z.txt","r");
+	//Zval=fopen("C:\\Users\\anwen\\Downloads\\SCPUnion2_1_z.txt","r");
 	//Mu_obs=fopen("C:\\Users\\anwen\\Downloads\\mu_obs.txt","r");
 	//Sigma=fopen("C:\\Users\\anwen\\Downloads\\sigma.txt","r");
 
-	double k_square_arr[21];
+	double chisq_arr[21]; //hard-coded for now
 	
 	clock_t start,finish;
 	double time;
@@ -258,13 +261,13 @@ int main()
 
 	for(int j=0;j<21;j++)
 	{
-		printf("gammasub:%lf\n\n",gammasub);
+		//printf("gammasub:%lf\n\n",gammasub);
 
-		double k_square = 0;
+		double chisq = 0;
 
-		while(fp!=NULL)
+		while(Zval!=NULL)
 		{
-			fscanf(fp,"%lf",&arr_z[i]);
+			fscanf(Zval,"%lf",&arr_z[i]);
 			fscanf(Mu_obs,"%lf",&arr_mu_obs[i]);
 			fscanf(Sigma,"%lf",&arr_sigma[i]);
 
@@ -272,28 +275,30 @@ int main()
 
 			Theta_msub=Theta_msolve(1.0, 1.0, H0, 1.0, Theta_Lambdasub, alphasub, gammasub);
 			mu = dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
-			printf("mu_th:%lf\n\n", mu);
+			//printf("mu:%lf\n\n", mu);
 			
 			//if () returns error, k_square = -1, get out of this while loop)
 			// else
 			//	{arr_mu_th[i]=mu;
-			//	 k_square+=pow((arr_mu_obs[i]-arr_mu_th[i])/arr_sigma[i],2);
+			chisq+=pow((arr_mu_obs[i]-arr_mu_th[i])/arr_sigma[i],2);
 			//	}
 			i++;
 		}
 
-		printf("%lf \n",k_square);
-		k_square_arr[j] = k_square;
+		//printf("%lf \n",chisq);
+		chisq_arr[j] = chisq;
+		
+		printf("%lf \t %lf \t %lf \n", gammasub, mu, chisq)
  
 		gammasub+=0.1;
 
 	} 
 	
-	//2. is there a way to output k_square_arr to a text file?
 
-	fclose(fp);
+	fclose(Zval);
 	fclose(Mu_obs);
 	fclose(Sigma);
+	fclose(fw);
 
 	finish=clock();
 	time=(double)(finish-start);

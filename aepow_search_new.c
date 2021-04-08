@@ -34,6 +34,8 @@
 
 #define sizeofz 580
 
+
+
 double Xddot(double X, double Y, double Xdot, double Ydot, double Theta_m, double Theta_Lambda, double alpha, double gamma)
 {
 	double H, T1;
@@ -95,6 +97,7 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 	double tau, tau_check, x, y, z, deviation;
 	double h, k1, k2, k3, k4, l1, l2, l3, l4, p1, p2, p3, p4, q1, q2, q3, q4, m1, m2, m3, m4;
 	int i, i_check;
+	int isError;
 
 	h=stepsize;
 	X=1.0; //X_init;
@@ -156,22 +159,18 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		tau=i*h;
 
 		//Break conditions
-		if(X>X_infty || i>max_iter || isnan(X))
+		if(X>X_infty || X<X_max || i>max_iter || isnan(X))
 		{
-			printf("Error: value is too large \n");
+			isError = -1;
+			printf("Error: X>X_infty || X<X_max || i>max_iter || isnan(X) \n");
 			break;
 		}
 
-		if(X<X_max)
-		{
-			//printf("X < X_max \n");
-			break;
-		}
-		
 		deviation=epsilon(X,Y,Xdot,Ydot, Theta_m, Theta_Lambda, alpha, gamma);
 		if(fabs(deviation)>EPS)
 		{
-			printf("Error: fabs(deviation)>EPS \n");
+			isError = -2;
+			printf("Error: fabs(deviation)>EPS  \n");
 			break;
 		}
 		/*
@@ -185,22 +184,28 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		}
 		*/
 
-
-                tau_check=(tau/h)/filter;
-                if(floor(tau_check)==tau_check)
-                {
+		tau_check=(tau/h)/filter;
+		if(floor(tau_check)==tau_check)
+		{
 			//deviation=epsilon(X,Y,Xdot,Ydot, Theta_m, Theta_Lambda, alpha, gamma);
 			dL=zeta/X;
 			mu_th=52.38560626+ 5*log10(dL); //Hub=25+5*log10(speed of light in km/s)
 			//printf("%.10f %.10f %.10f %.10f %.10f %d \n",X,tau*H0, deviation, mu_th, 1./X-1.,i);
-                }
-
+		}
 	}
 
 	dL=zeta/X;
-        mu_th=52.38560626 + 5*log10(dL); //Hub=52.38560626=25+5*log10(speed of light in km/s)
-	return mu_th;
+	
+	if(isError ==-1 || isError == -2)
+	{ 
+		return isError;
+	}
+	else
+	{
+		return	mu_th=52.38560626 + 5*log10(dL); //Hub=52.38560626=25+5*log10(speed of light in km/s)
+	}
 }
+
 
 int main()
 {
@@ -209,64 +214,100 @@ int main()
 	double T1, T2;
 
 	//Parameter setup
-	Theta_Lambdasub=Theta_Lambda_top; //0.5*H0*H0;
 	alphasub=1.0;
-	gammasub=gamma_top; //-10*0.65*H0*H0;
-	Theta_msub=Theta_msolve(1.0, 1.0, H0, 1.0, Theta_Lambdasub, alphasub, gammasub);
+	
+	//Parameters to be optimized
+	Theta_Lambdasub=Theta_Lambda_top; //0.5*H0*H0;
+	gammasub=0.0; //-10*0.65*H0*H0;  
 
 	/* //diagnostics for deceleration parameter
 	T1=(1-2*n)*(3-2*n)*gammasub*pow(3*alphasub,n)*pow(H0,2*n)/6;
 	T2=2+n*(1-2*n)/3*gammasub*pow(3*alphasub,n)*pow(H0,2*(n-1));
-
 	q=-Xddot(X_init, Y_init, Xdot_init, Ydot_init,Theta_msub,Theta_Lambdasub,alphasub,gammasub)/H0/H0;
 	printf("%f %f %f %f \n" ,q, T1, T2, Theta_msub);
 	*/
 
-	//z=0.02; //Given a z, calculate mu
-	//mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
-	//printf("%lf\n", mu);
-
-	FILE *fp, *fw; //pointers to 2 files
+	FILE *fp,*Mu_obs,*Sigma;
 	int i=0;
 	double arr_z[sizeofz];
 	double arr_mu_th[sizeofz];
-	//fp=fopen("C:\\Users\\anwen\\Downloads\\SCPUnion2_1_z.txt","r");
-	fp=fopen("./data/SCPUnion2_1_z.txt","r"); //read in the SCP Union data
+	double arr_mu_obs[sizeofz];
+	double arr_sigma[sizeofz];
+
+	//read the data
+	fp=fopen("./data/SCPUnion2_1_z","r");
 	if (fp != NULL)
-		printf("File SCPUnion2_1_z is read. \n");
+		printf("File SCPUnion2_1_z can be read. \n");
+	else perror("fopen");
+
+	Mu_obs=fopen("./data/SCPUnion2_1_mu","r");
+	if (Mu_obs != NULL)
+		printf("File SCPUnion2_1_mu can be read. \n");
 	else perror("fopen");
 	
-	// write the mu values to this file
-	//fw = fopen ("computed_mu.txt","w");
+	Sigma=fopen("./data/SCPUnion2_1_sigma","r");
+	if (Sigma != NULL)
+		printf("File SCPUnion2_1_sigma can be read. \n");
+	else perror("fopen");
+
+	//for Wenqi's directory:
+	//fp=fopen("C:\\Users\\anwen\\Downloads\\SCPUnion2_1_z.txt","r");
+	//Mu_obs=fopen("C:\\Users\\anwen\\Downloads\\mu_obs.txt","r");
+	//Sigma=fopen("C:\\Users\\anwen\\Downloads\\sigma.txt","r");
+
+	double k_square_arr[21];
 	
 	clock_t start,finish;
 	double time;
 	start=clock();
-	
-	while(i < sizeofz)
-    {
-        fscanf(fp,"%lf",&arr_z[i]);
-        z=arr_z[i];
-        mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
-        arr_mu_th[i]=mu;
 
-		printf("%d \t %lf\t%lf\n", i, arr_z[i], arr_mu_th[i]);
+	for(int j=0;j<21;j++)
+	{
+		printf("gammasub:%lf\n\n",gammasub);
 
-        //fprintf(fw, "%lf\t%lf\n", arr_z[i], arr_mu_th[i]);
+		double k_square = 0;
 
-        if((arr_z[i]<=0))
-        {
-            printf("error number\n");
-            break;
-        }
-        i++;
-    }
-    fclose(fp);
-    //fclose(fw);
+		while(fp!=NULL)
+		{
+			fscanf(fp,"%lf",&arr_z[i]);
+			fscanf(Mu_obs,"%lf",&arr_mu_obs[i]);
+			fscanf(Sigma,"%lf",&arr_sigma[i]);
+
+			z=arr_z[i];
+
+			Theta_msub=Theta_msolve(1.0, 1.0, H0, 1.0, Theta_Lambdasub, alphasub, gammasub);
+			mu = dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
+			printf("mu_th:%lf\n\n", mu);
+			
+			if (mu == -1 || mu == -2) // if there are breaking conditions 
+			{
+				k_square = -1;
+				break;
+			}
+			else
+			{
+				arr_mu_th[i]=mu;
+				k_square+=pow((arr_mu_obs[i]-arr_mu_th[i])/arr_sigma[i],2);
+			}
+			i++;
+		}
+
+		//printf("%lf \n",k_square);
+		k_square_arr[j] = k_square;
  
+		gammasub+=0.1;
+
+	} 
+	
+	//2. is there a way to output k_square_arr to a text file?
+
+	fclose(fp);
+	fclose(Mu_obs);
+	fclose(Sigma);
+
 	finish=clock();
 	time=(double)(finish-start);
-	printf("\n\nThe computations took %f s",time/1000);
+	printf("\n\nThe grid search took %f s",time/1000);
 	printf("\n\n");
 
 	return 0;
