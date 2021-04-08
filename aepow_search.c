@@ -34,8 +34,6 @@
 
 #define sizeofz 580
 
-
-
 double Xddot(double X, double Y, double Xdot, double Ydot, double Theta_m, double Theta_Lambda, double alpha, double gamma)
 {
 	double H, T1;
@@ -158,18 +156,22 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		tau=i*h;
 
 		//Break conditions
-		if(X>X_infty || X<X_max || i>max_iter || isnan(X))
+		if(X>X_infty || i>max_iter || isnan(X))
 		{
-			mu_th = -1;
 			printf("Error: value is too large \n");
 			break;
 		}
 
+		if(X<X_max)
+		{
+			//printf("X < X_max \n");
+			break;
+		}
+		
 		deviation=epsilon(X,Y,Xdot,Ydot, Theta_m, Theta_Lambda, alpha, gamma);
 		if(fabs(deviation)>EPS)
 		{
-			mu_th = -2;
-			printf("Error: fabs(deviation)>EPS  \n");
+			printf("Error: fabs(deviation)>EPS \n");
 			break;
 		}
 		/*
@@ -183,21 +185,22 @@ double dsolve(double Theta_m, double Theta_Lambda, double alpha, double gamma, d
 		}
 		*/
 
-		tau_check=(tau/h)/filter;
-		if(floor(tau_check)==tau_check)
-		{
+
+                tau_check=(tau/h)/filter;
+                if(floor(tau_check)==tau_check)
+                {
 			//deviation=epsilon(X,Y,Xdot,Ydot, Theta_m, Theta_Lambda, alpha, gamma);
 			dL=zeta/X;
 			mu_th=52.38560626+ 5*log10(dL); //Hub=25+5*log10(speed of light in km/s)
 			//printf("%.10f %.10f %.10f %.10f %.10f %d \n",X,tau*H0, deviation, mu_th, 1./X-1.,i);
-		}
+                }
+
 	}
 
 	dL=zeta/X;
-	mu_th=52.38560626 + 5*log10(dL); //Hub=52.38560626=25+5*log10(speed of light in km/s)
+        mu_th=52.38560626 + 5*log10(dL); //Hub=52.38560626=25+5*log10(speed of light in km/s)
 	return mu_th;
 }
-
 
 int main()
 {

@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
+#include<time.h>
 
 //Set physical parameters
 #define H0 70.0
@@ -225,26 +226,33 @@ int main()
 	//mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
 	//printf("%lf\n", mu);
 
-	FILE *fp;
-	int i=0,j=0;
+	FILE *fp, *fw; //pointers to 2 files
+	int i=0;
 	double arr_z[sizeofz];
 	double arr_mu_th[sizeofz];
 	//fp=fopen("C:\\Users\\anwen\\Downloads\\SCPUnion2_1_z.txt","r");
-	
-	fp=fopen("./data/SCPUnion2_1_z","r");
+	fp=fopen("./data/SCPUnion2_1_z","r"); //read in the SCP Union data
 	if (fp != NULL)
 		printf("File SCPUnion2_1_z is read. \n");
 	else perror("fopen");
+	
+	// write the mu values to this file
+	//fw = fopen ("computed_mu.txt","w");
+	
+	clock_t start,finish;
+	double time;
+	start=clock();
 	
 	while(fp!=NULL)
     {
         fscanf(fp,"%lf",&arr_z[i]);
         z=arr_z[i];
         mu=dsolve(Theta_msub, Theta_Lambdasub, alphasub, gammasub, 1.0/(1+z));
-        arr_mu_th[j]=mu;
+        arr_mu_th[i]=mu;
 
-        printf("%lf      ",arr_z[i]);
-        printf("%lf\n",arr_mu_th[j]);
+		printf("%d \t %lf\t%lf\n", i, arr_z[i], arr_mu_th[i]);
+
+        //fprintf(fw, "%lf\t%lf\n", arr_z[i], arr_mu_th[i]);
 
         if((arr_z[i]<=0))
         {
@@ -252,9 +260,14 @@ int main()
             break;
         }
         i++;
-        j++;
     }
     fclose(fp);
+    //fclose(fw);
+ 
+	finish=clock();
+	time=(double)(finish-start);
+	printf("\n\nThe computations took %f s",time/1000);
+	printf("\n\n");
 	
 	//printf("%.10f %.10f \n",z,mu);
 
