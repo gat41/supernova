@@ -265,8 +265,8 @@ int main()
     //fclose(fw);
  
 	finish=clock();
-	time=(double)(finish-start);
-	printf("\n\nThe computations took %f s",time/1000);
+	time=(double)(finish-start)/ CLOCKS_PER_SEC;
+	printf("\n\nThe computations took %f s",time);
 	printf("\n\n");
 
 	return 0;
